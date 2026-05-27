@@ -90,8 +90,8 @@ Open your terminal or PowerShell and follow these exact Windows commands:
 
 1. **Clone the repo**
    ```powershell
-   git clone https://github.com/inshrahwaseem/Adaptive-RAG.git
-   cd Adaptive-RAG
+   git clone https://github.com/Aditya-s14/AdaptiveRAG.git
+   cd AdaptiveRAG
    ```
 
 2. **Create a virtual environment**
