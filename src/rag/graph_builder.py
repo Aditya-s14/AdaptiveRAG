@@ -8,7 +8,7 @@ from langchain_core.prompts import PromptTemplate
 from langgraph.constants import START, END
 from langgraph.graph.state import StateGraph
 
-from src.rag.reAct_agent import agent_executor
+from src.rag.reAct_agent import build_agent_executor
 from src.rag.retriever_setup import get_retriever
 from src.config.settings import Config
 from src.llms.openai import llm
@@ -89,6 +89,9 @@ def retriever_node(state: State):
     # Step 2: Retrieve relevant docs using reAct agent
     messages = state["latest_query"]
     try:
+        # Build the agent fresh so it uses the retriever bound to the latest
+        # vector store (which is replaced on each document upload).
+        agent_executor = build_agent_executor()
         result = agent_executor.invoke({"input": messages})
 
         # Extract tool calls

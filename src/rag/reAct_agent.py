@@ -11,9 +11,6 @@ from src.rag.retriever_setup import get_retriever
 
 config = Config()
 
-# Initialize tools
-tools = [get_retriever()]
-
 # Create ReAct agent prompt
 prompt = ChatPromptTemplate.from_messages([
     ("system", config.prompt("system_prompt")),
@@ -21,13 +18,26 @@ prompt = ChatPromptTemplate.from_messages([
     ("ai", "{agent_scratchpad}")
 ])
 
-# Initialize the ReAct agent and executor
-react_agent = create_react_agent(llm, tools, prompt)
-agent_executor = AgentExecutor(
-    agent=react_agent,
-    tools=tools,
-    handle_parsing_errors=True,
-    max_iterations=2,
-    verbose=True,
-    return_intermediate_steps=True
-)
+
+def build_agent_executor() -> AgentExecutor:
+    """
+    Build a fresh ReAct agent executor bound to the current retriever.
+
+    The retriever tool must be created on each call because the underlying
+    FAISS vector store is replaced whenever a new document is uploaded.
+    Binding the agent once at import time would leave it pointing at the
+    initial empty (dummy) store and ignore all uploaded documents.
+
+    Returns:
+        A configured AgentExecutor using the latest retriever.
+    """
+    tools = [get_retriever()]
+    react_agent = create_react_agent(llm, tools, prompt)
+    return AgentExecutor(
+        agent=react_agent,
+        tools=tools,
+        handle_parsing_errors=True,
+        max_iterations=2,
+        verbose=True,
+        return_intermediate_steps=True
+    )
